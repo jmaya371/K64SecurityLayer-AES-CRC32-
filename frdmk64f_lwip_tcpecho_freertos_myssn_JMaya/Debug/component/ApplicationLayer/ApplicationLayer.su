@@ -1,0 +1,3 @@
+ApplicationLayer.c:26:14:ApplicationLayer_pvSelectMsg	4	static
+ApplicationLayer.c:70:6:ApplicationLayer_vReceive	24	static
+ApplicationLayer.c:85:6:ApplicationLayer_vTransmit	24	static

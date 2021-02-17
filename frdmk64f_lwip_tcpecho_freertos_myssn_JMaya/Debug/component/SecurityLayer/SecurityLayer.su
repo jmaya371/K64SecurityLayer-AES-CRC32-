@@ -1,0 +1,5 @@
+SecurityLayer.c:28:13:SecurityLayer_vInitCrc32	32	static
+SecurityLayer.c:43:13:SecurityLayer_s_vPrintText	24	static
+SecurityLayer.c:57:17:SecurityLayer_s_u32GetCRC32	24	static
+SecurityLayer.c:72:6:SecurityLayer_vTransmit	760	static
+SecurityLayer.c:107:9:SecurityLayer_s32Receive	768	static
