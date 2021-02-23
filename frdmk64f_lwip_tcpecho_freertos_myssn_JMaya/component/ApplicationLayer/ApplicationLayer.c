@@ -69,15 +69,10 @@ static void* ApplicationLayer_pvSelectMsg(void)
 /*Public Functions*/
 void ApplicationLayer_vReceive(uint8_t* pu8Msg, uint16_t u16LenBuff)
 {
-	PRINTF("Plain-Text Message: \r\n");
-	PRINTF("Hexadecimal Message: \r\n");
+	PRINTF("Plain-Text Message: \t");
+	// Char Message:
 	for(int i=0; i<u16LenBuff; i++) {
-		PRINTF("0x%02x,", pu8Msg[i]);
-	}
-	PRINTF("\r\n");
-	PRINTF("Char Message: \r\n");
-	for(int i=0; i<u16LenBuff; i++) {
-		PRINTF("%c,", pu8Msg[i]);
+		PRINTF("%c", pu8Msg[i]);
 	}
 	PRINTF("\r\n\n");
 }

@@ -39,6 +39,7 @@
 #include "lwip/sys.h"
 #include "lwip/api.h"
 /*-----------------------------------------------------------------------------------*/
+
 static void 
 tcpecho_thread(void *arg)
 {
@@ -64,33 +65,28 @@ tcpecho_thread(void *arg)
 
     /* Grab new connection. */
     err = netconn_accept(conn, &newconn);
-    /*printf("accepted new connection %p\n", newconn);*/
-    /* Process the new connection. */
+
     if (err == ERR_OK) {
       struct netbuf *buf;
       void *data;
       u16_t len;
       
       while ((err = netconn_recv(newconn, &buf)) == ERR_OK) {
-        /*printf("Recved\n");*/
+
         do {
              netbuf_data(buf, &data, &len);
 
-             //Capa de transporte.
              SecurityLayer_s32Receive(data, len);
+
              ApplicationLayer_vTransmit(data);
 
-             err = netconn_write(newconn, data, len, NETCONN_COPY);
-#if 0
-            if (err != ERR_OK) {
-              printf("tcpecho: netconn_write: error \"%s\"\n", lwip_strerr(err));
-            }
-#endif
+
+             err = netconn_write(newconn, data, SecurityLayer_CalcSize(((SecurityLayer_tstAllMsg*)data)->u16LenBuff), NETCONN_COPY);
+
         } while (netbuf_next(buf) >= 0);
         netbuf_delete(buf);
       }
-      /*printf("Got EOF, looping\n");*/ 
-      /* Close connection and discard connection identifier. */
+ 
       netconn_close(newconn);
       netconn_delete(newconn);
     }

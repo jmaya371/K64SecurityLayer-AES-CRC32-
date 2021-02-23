@@ -40,16 +40,21 @@ static void SecurityLayer_vInitCrc32(CRC_Type *base, uint32_t seed)
     CRC_Init(base, &config);
 }
 
-static void SecurityLayer_s_vPrintText(uint8_t* pu8Buff, uint16_t u16LenBuff)
+static void SecurityLayer_s_vPrintText(uint8_t* pu8Buff, uint16_t u16LenBuff, uint8_t u8select)
 {
-	PRINTF("Hexadecimal Message: \r\n");
-	for(int i=0; i<u16LenBuff; i++) {
-		PRINTF("0x%02x,", pu8Buff[i]);
+	if (u8select == 0)
+	{
+		// Hexadecimal Message:
+		for(int i=0; i<u16LenBuff; i++) {
+			PRINTF("0x%02x,", pu8Buff[i]);
+		}
 	}
-	PRINTF("\r\n");
-	PRINTF("Char Message: \r\n");
-	for(int i=0; i<u16LenBuff; i++) {
-		PRINTF("%c,", pu8Buff[i]);
+	else
+	{
+		// Char Message:
+		for(int i=0; i<u16LenBuff; i++) {
+			PRINTF("%c", pu8Buff[i]);
+		}
 	}
 	PRINTF("\r\n\n");
 }
@@ -94,13 +99,14 @@ void SecurityLayer_vTransmit(uint8_t* pu8Buff, void* pvEncryptMsg)
 		pstEncryptedMsg->au8BuffMsg[i] = au8AligMsg[i];
 	}
 
-	PRINTF("Plain-Text Message: \r\n");
-	SecurityLayer_s_vPrintText(pu8Buff, u16LenBuff);
+	PRINTF("\n******************* TX *******************\r\n");
+	PRINTF("Plain-Text Message: \t");
+	SecurityLayer_s_vPrintText(pu8Buff, u16LenBuff, 1);
 	PRINTF("Encrypted Message: \r\n");
-	SecurityLayer_s_vPrintText(au8AligMsg, u16AligLenBuff);
+	SecurityLayer_s_vPrintText(au8AligMsg, u16AligLenBuff, 0);
 
 	pstEncryptedMsg->u32CRC32 = 0x0000;
-	u32CRC32 = SecurityLayer_s_u32GetCRC32((void*)pstEncryptedMsg, (sizeof(u32CRC32)+sizeof(u16LenBuff)+u16AligLenBuff));
+	u32CRC32 = SecurityLayer_s_u32GetCRC32((void*)pstEncryptedMsg, (SecurityLayer_CalcSize(u16AligLenBuff)));
 	pstEncryptedMsg->u32CRC32 = u32CRC32;
 }
 
@@ -120,6 +126,7 @@ int32_t SecurityLayer_s32Receive(void* pvBuff, uint16_t u16Len)
 	{
 		u32CRC32BuffMsg = pstBuff->u32CRC32;
 		pstBuff->u32CRC32 = 0U;
+		PRINTF("\n\n\n******************* RX *******************\r\n");
 		u32CRC32 = SecurityLayer_s_u32GetCRC32(pstBuff, u16Len);
 		pstBuff->u32CRC32 = u32CRC32;
 
@@ -139,7 +146,7 @@ int32_t SecurityLayer_s32Receive(void* pvBuff, uint16_t u16Len)
 
 			AES_CBC_decrypt_buffer(&stAESctx, au8AligMsg, u16AligLenBuff);
 			PRINTF("Encrypted Message: \r\n");
-			SecurityLayer_s_vPrintText(pstBuff->au8BuffMsg, pstBuff->u16LenBuff);
+			SecurityLayer_s_vPrintText(pstBuff->au8BuffMsg, pstBuff->u16LenBuff, 0);
 			u32Return = ERR_OK;
 
 			ApplicationLayer_vReceive(au8AligMsg, pstBuff->u16LenBuff);

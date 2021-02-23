@@ -22,9 +22,10 @@
 
 
 /*Public Constants*/
-
+#define SecurityLayer_nSizeOfCRCBytes		(4U)
+#define SecurityLayer_nSizeOfLenMsgBytes	(2U)
 /*Public Macros*/
-
+#define SecurityLayer_CalcSize(SizeMsg)		(SecurityLayer_nSizeOfCRCBytes+SecurityLayer_nSizeOfLenMsgBytes+SizeMsg)
 /*Public Types*/
 typedef struct
 {

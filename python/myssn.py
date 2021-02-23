@@ -113,7 +113,7 @@ def recv(sock):
             # Get the 4 bytes of the CRC 32
             msg_crc_bytes = bytes_msg[:4]
             # Calculate the CRC from the body
-            msg_body_bytes = b'\00' +  b'\00' +  b'\00' +  b'\00' + msg_body_bytes
+            msg_body_bytes = bytes(4) + msg_body_bytes
             crc = binascii.crc32(msg_body_bytes)
             # Convert the CRC bytes from the message to integer
             rx_crc = int.from_bytes(msg_crc_bytes, byteorder = 'little')
@@ -124,7 +124,8 @@ def recv(sock):
             else:
                 # If the CRC is fine then decrypt the message
                 data = dec(bytes_msg[6:])
-                if verbose: print('myssn DATA: {!r}'.format(data))
+                print('\nmyssn DATA recived encripted: {!r}'.format(bytes_msg))
+                if verbose: print('myssn DATA recived: {!r}'.format(data))
         else:
             # No data was received, this may be because of a closed coennection
             if verbose: print('myssn INFO: no data myssn connection')
@@ -143,12 +144,12 @@ def send(sock, data):
     bytes_msg = enc(data)
     if verbose: print('myssn INFO: encrypted message: {}'.format(bytes_msg))
     # Second, calculate the CRC over the encrypted message
-    bytes_msg2 = b'\x20' + b'\00' + bytes_msg
-    bytes_msg3 =  b'\00' +  b'\00' +  b'\00' +  b'\00' + b'\x20' + b'\00' + bytes_msg
+    bytes_msg2 = len(bytes_msg).to_bytes(2, byteorder='little') + bytes_msg
+    bytes_msg3 =  bytes(4) + bytes_msg2
     crc = binascii.crc32(bytes_msg3)
     # crc is a python's integer, we have to convert it into a 4 bytes array to transmit it
     crc_bytes = crc.to_bytes(4, byteorder = 'little')
-    if verbose: print('myssn INFO: tx crc32 = {}, crc bytes = {}'.format(crc, crc_bytes))
+    #if verbose: print('myssn INFO: tx crc32 = {}, crc bytes = {}'.format(crc, crc_bytes))
     # Concatenate the crc at the end of the encrypted message
     bytes_msg = crc_bytes + bytes_msg2
     # Send the message over TCP
